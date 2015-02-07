@@ -1,4 +1,4 @@
-class Node {
+public class Node {
   
   int costToGoal;
   int costFromStart;
@@ -6,11 +6,7 @@ class Node {
   Node parent;
   
   public Node() {
-    this.parent = NULL;
-  }
-
-  public int getTotalCost() {
-   
+    this.parent = null;
   }
 
   public void setCostToGoal(int value) {
