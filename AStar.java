@@ -3,6 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
+
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
@@ -18,23 +19,22 @@ public class AStar {
     
     void  createStartNode(int[][] matrix) {
         Node startNode = new Node();
-        startNode.costToGoal = 0;
-        startNode.costFromStart = 0;
-        startNode.totalCost = 0;
-        startNode.nodeType = NodeType.StartNode;
-        startNode.id = nodeId;
+        startNode.setCostToGoal(0);
+        startNode.setCostFromStart(0);
+        startNode.setTotalCost(0);
+        startNode.setId(nodeId);
 
         for(int x = 0; x < matrix.length; x ++ ){
           for(int y = 0; y < matrix[0].length; y ++ ){
               if(matrix[x][y] == -2) {
-                startNode.i = x;
-                startNode.j = y;
+                startNode.setICoordinate(x);
+                startNode.setJCoordinate(y);
               }
           }
         }
 
         frontier.add(startNode);
-        expansionMap.put( startNode.id, startNode);
+        expansionMap.put( startNode.getId(), startNode);
   }
 
     void calculatepath(int[][] matrix) {
@@ -48,80 +48,83 @@ public class AStar {
         int selectedFrontierNode = -1;
         int selectedChild_i = -1;
         int selectedChild_j = -1;
-        Boolean visitedFlag;
+        Boolean visitedFlag = false;
 
        for(int k = 0; k < frontier.size(); k++ ){
             visitedFlag = false;
     
-            if(expansionMap.containsKey(frontier.get(k).id) && frontier.get(k).nodeType != NodeType.StartNode) {
+            if(expansionMap.containsKey(frontier.get(k).getId()) && frontier.get(k).getId() != 0) {
                 visitedFlag = true;
             }
-            if(!visitedFlag) {
-                
-                int i = frontier.get(k).i;
-                int j = frontier.get(k).j;
-                 // i-1,j // i+1, j // i,j-1  // i,j+1
-                         if(matrix[i-1][j] < min && matrix[i-1][j] >= 0){
-                   if((i - 1) >= 0) {
-                   min = matrix[i-1][j];
-                         i_value = i - 1; 
-                         j_value = j;
-                   }
+            if(visitedFlag) {
+                continue;
+            }   
+            else {
+                 int i = frontier.get(k).getICoordinate();
+                 int j = frontier.get(k).getJCoordinate();
+                  // i-1,j // i+1, j // i,j-1  // i,j+1
+                  if((i - 1) >= 0) {
+                      if(matrix[i-1][j] < min && matrix[i-1][j] >= 0){
+                          min = matrix[i-1][j];
+                          i_value = i - 1; 
+                          j_value = j;
+                    }
 
-                   if(matrix[i-1][j] >= 0) {
-                     if(createPath(frontier.get(k), matrix[i -1][j], i - 1, j)) 
-                         return;
-                   }
-                 }
+                    if(matrix[i-1][j] >= 0) {
+                      if(createPath(frontier.get(k), matrix[i -1][j], i - 1, j)) 
+                          return;
+                    }
+                  }
 
-                 if(i+1 < rows){
-                     if (matrix[i+1][j] < min && matrix[i+1][j] >= 0) {
-                         min = matrix[i+1][j];
-                         i_value = i + 1;
-                         j_value = j;                    
-                     }
-                     if(matrix[i + 1][j] >= 0) {
-                       if(createPath(frontier.get(k), matrix[i + 1][j], i + 1, j))
-                           return;
-                     }
-                 }
+                  if(i+1 < rows){
+                      if (matrix[i+1][j] < min && matrix[i+1][j] >= 0) {
+                          min = matrix[i+1][j];
+                          i_value = i + 1;
+                          j_value = j;                    
+                      }
+                      if(matrix[i + 1][j] >= 0) {
+                        if(createPath(frontier.get(k), matrix[i + 1][j], i + 1, j))
+                            return;
+                      }
+                  }
 
-                 if(j-1 >= 0){
-                     if(matrix[i][j-1] < min && matrix[i][j - 1] >= 0){
-                         min = matrix[i][j-1];
-                         i_value = i;
-                         j_value = j - 1;
-                     }
-                     if(matrix[i][j - 1] >= 0) {
-                       if(createPath(frontier.get(k), matrix[i][j - 1], i, j - 1))
-                           return;
-                     }
-                 }
+                  if(j-1 >= 0){
+                      if(matrix[i][j-1] < min && matrix[i][j - 1] >= 0){
+                          min = matrix[i][j-1];
+                          i_value = i;
+                          j_value = j - 1;
+                      }
+                      if(matrix[i][j - 1] >= 0) {
+                        if(createPath(frontier.get(k), matrix[i][j - 1], i, j - 1))
+                            return;
+                      }
+                  }
 
-                 if(j+1 < cols){
-                     if(matrix[i][j+1] < min && matrix[i][j + 1] >= 0) {
-                         min = matrix[i][j+1];
-                         i_value = i;
-                         j_value = j + 1;
-                     }
+                  if(j+1 < cols){
+                      if(matrix[i][j+1] < min && matrix[i][j + 1] >= 0) {
+                          min = matrix[i][j+1];
+                          i_value = i;
+                          j_value = j + 1;
+                      }
 
-                     if(matrix[i][j + 1] >= 0) {
-                       if(createPath(frontier.get(k), matrix[i][j + 1], i , j + 1))
-                           return;
-                     }
-                 }
+                      if(matrix[i][j + 1] >= 0) {
+                        if(createPath(frontier.get(k), matrix[i][j + 1], i , j + 1))
+                            return;
+                      }
+                  }
 
-                 int val = frontier.get(k).costFromStart + min;
-                 if( val < frontierMin) {
-                   frontierMin = val;
-                   selectedFrontierNode = k;
-                   selectedChild_i = i_value;
-                   selectedChild_j = j_value;
-                 }
+                  int val = frontier.get(k).getCostFromStart() + min;
+                  if( val < frontierMin) {
+                    frontierMin = val;
+                    selectedFrontierNode = k;
+                    selectedChild_i = i_value;
+                    selectedChild_j = j_value;
+                  }
 
-                 if(frontier.get(k).nodeType != NodeType.StartNode) {
-                    expansionMap.put(frontier.get(k).id, frontier.get(k));
-                 }
+                  if(frontier.get(k).getId() != 0) {
+                     expansionMap.put(frontier.get(k).getId(), frontier.get(k));
+                  }
+                // frontier.remove(frontier.get(k));
             }
         }
   }
@@ -129,12 +132,12 @@ public class AStar {
    Boolean createPath(Node parent, int h, int i, int j) {
       nodeId++;
       Node newNode = new Node();
-      newNode.parent = parent;
-      newNode.costToGoal = h;
-      newNode.i = i;
-      newNode.j = j;
-      newNode.id = nodeId;
-      newNode.costFromStart = parent.costFromStart + 1;
+      newNode.setParent(parent);
+      newNode.setCostToGoal(h);
+      newNode.setICoordinate(i);
+      newNode.setJCoordinate(j);
+      newNode.setId(nodeId);
+      newNode.setCostFromStart(parent.getCostFromStart() + 1);
       frontier.add(newNode);  
       
       if(h == 0) {
@@ -147,8 +150,8 @@ public class AStar {
 
    void printTree(Node child) {
     while(child != null) {
-      System.out.println(child.i + " : "+ child.j);
-      child = child.parent;
+      System.out.println(child.getICoordinate() + " : "+ child.getICoordinate());
+      child = child.getParent();
     }
   }
 }

@@ -32,5 +32,5 @@ class Pacman {
     astar.createStartNode(mat);      
     astar.calculatepath(mat);
   }
-
+}
  
