@@ -1,5 +1,3 @@
-package pacman;
-
 import java.util.*;
 import java.io.*;
 
