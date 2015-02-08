@@ -11,6 +11,7 @@ import java.util.logging.Logger;
  *
  * @author panindra
  */
+
 class Pacman {
  
   public static void main(String[] args) {
@@ -31,6 +32,5 @@ class Pacman {
     astar.createStartNode(mat);      
     astar.calculatepath(mat);
   }
-}
 
  
