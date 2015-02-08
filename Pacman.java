@@ -1,7 +1,8 @@
 import.java.util.*
 
 class Pacman {
-  
+  ArrayList<Node> frontier = new ArrayList<Node>();
+
   public static void main() {
     int[][] mat = new int[][]{
                   {-2, 3, 2},
@@ -41,4 +42,8 @@ class Pacman {
     child.parent = parent;
   }
 
+  void addToFrontier(Node node) {
+    frontier.add(node);
+  }
+  
 };
