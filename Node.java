@@ -1,9 +1,28 @@
+/*
+ * To change this license header, choose License Headers in Project Properties.
+ * To change this template file, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package pacman;
+
+/**
+ *
+ * @author panindra
+ */
+ enum NodeType {
+    StartNode, EndNode;
+}
+
 public class Node {
   
   int costToGoal;
   int costFromStart;
   int totalCost;
+  int i;
+  int j;
   Node parent;
+  Boolean visited;
+  NodeType nodeType;
   
   public Node() {
     this.parent = null;
@@ -26,4 +45,5 @@ public class Node {
   }
 
 };
+
 
