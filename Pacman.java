@@ -1,4 +1,7 @@
+import.java.util.*
+
 class Pacman {
+  \
   public static void main() {
     int[][] mat = new int[][]{
                   {-2, 3, 2},
@@ -32,6 +35,10 @@ class Pacman {
       }
     }
 
+  }
+
+  void createPath(Node parent, Node child) {
+    child.parent = parent;
   }
 
 };
