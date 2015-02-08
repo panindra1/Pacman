@@ -173,7 +173,7 @@ class Pacman {
   }
 
   static void printTree(Node child) {
-    while(child.parent != null) {
+    while(child != null) {
       System.out.println(child.i + " : "+ child.j);
       child = child.parent;
     }
