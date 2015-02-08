@@ -1,7 +1,7 @@
 import.java.util.*
 
 class Pacman {
-  \
+  
   public static void main() {
     int[][] mat = new int[][]{
                   {-2, 3, 2},
