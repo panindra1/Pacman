@@ -20,9 +20,9 @@ public class Node {
   int totalCost;
   int i;
   int j;
+  int id;
   Node parent;
-  Boolean visited;
-  NodeType nodeType;
+ NodeType nodeType;
   
   public Node() {
     this.parent = null;
