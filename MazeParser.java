@@ -1,6 +1,6 @@
 import java.util.*;
 import java.io.*;
-<<<<<<< HEAD
+
 public class MazeParser
 {
     File file;
@@ -8,21 +8,10 @@ public class MazeParser
     {}
 
     public MazeParser(File file) throws Exception
-=======
-
-public class MazeParser
-{
-    File file;
-    public MazeParser()
-    {}
-
-    public MazeParser(File file)
->>>>>>> 871cf79742dabe716ab5de0078355a10f69b62c6
     {
         this.file = file;
     }
 
-<<<<<<< HEAD
     public MazeParser(String filename) throws Exception
     {
         this(new File(filename));
@@ -74,9 +63,6 @@ public class MazeParser
         return maze;
     }
 
-
-=======
->>>>>>> 871cf79742dabe716ab5de0078355a10f69b62c6
     public int[][] getMazeMatrix() throws Exception
     {
 	int[][] output;
@@ -94,11 +80,7 @@ public class MazeParser
                     goalX = i;
                     goalY = l;
                     System.out.println("goalX = " + goalX + ", goalY = " + goalY);
-<<<<<<< HEAD
                     nodeArray[i] = -2;
-=======
-                    nodeArray[i] = 0;
->>>>>>> 871cf79742dabe716ab5de0078355a10f69b62c6
                 }
                 else if(line.charAt(i) == '%')
                 {
@@ -106,11 +88,7 @@ public class MazeParser
                 }
                 else if(line.charAt(i) == 'P')
                 {
-<<<<<<< HEAD
                     nodeArray[i] = -3;
-=======
-                    nodeArray[i] = -2;
->>>>>>> 871cf79742dabe716ab5de0078355a10f69b62c6
                 }  
             }
             lineList.add(nodeArray);
@@ -128,7 +106,6 @@ public class MazeParser
         return output;
     }
 
-<<<<<<< HEAD
     public void printMaze(Maze maze, Coordinate goal)
     {
         printMaze(maze.mazeMatrix, goal);
@@ -177,8 +154,6 @@ public class MazeParser
         }
     }
 
-=======
->>>>>>> 871cf79742dabe716ab5de0078355a10f69b62c6
     public static void main(String[] args) throws Exception
     {
         File file = new File(args[0]);
