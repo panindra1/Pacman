@@ -3,7 +3,6 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-
 import java.io.File;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -12,6 +11,9 @@ import java.util.logging.Logger;
  *
  * @author panindra
  */
+
+enum Algorithm { AStar, GreedyBestFirst};
+
 class Pacman {
  
   public static void main(String[] args) {
@@ -24,13 +26,20 @@ class Pacman {
       } catch (Exception ex) {
           Logger.getLogger(Pacman.class.getName()).log(Level.SEVERE, null, ex);
       }
-    /*int[][] mat = new int[][]{
+    /*int[][] mat1 = new int[][]{
                   {4, 3, 2, 3},
                   {3, -1, -1, 2},
                   {-2, -1, 0, 1}};*/
-    AStar astar = new AStar();
-    astar.createStartNode(mat);      
-    astar.calculatepath(mat);
+     int[][] mat1 = new int[][]{
+                  {4, 3, 2, 3},
+                  {3, 2, -1, 2},
+                  {2, -1, 0, 1},
+                  {-2, 2, -1, 2}};
+     
+    GraphSearch astar = new GraphSearch();
+    astar.createStartNode(mat, Algorithm.AStar);      
+    astar = new GraphSearch();
+    astar.createStartNode(mat, Algorithm.GreedyBestFirst);      
   }
 }
 
