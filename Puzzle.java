@@ -17,175 +17,198 @@ import java.util.PriorityQueue;
  * @author panindra
  */
 enum HUERISTIC_TYPE{MISPLACED, MANHATTAN, GASCHNIG};
+
+class PuzzleNode {
+    int i;
+    int j;
+    PuzzleNode parent;
+    Boolean startNode;
     
+    PuzzleNode(int i, int j) {
+        this.i = i;
+        this.j = j;
+        this.parent = null;
+        this.startNode = false;
+    }
+}
+
 public class Puzzle {
      static Map<ArrayList<Integer>, Integer> stateSpaceMap = new HashMap<ArrayList<Integer>, Integer>();
      static LinkedList<Node> expansionList = new LinkedList<>();
-     static PriorityQueue<Node> pq1;
-     
+     static LinkedList<PuzzleNode> frontier = new LinkedList<>();
+     static PriorityQueue<int[][]> pq1;
+     static int count = 0;
+     static int[][] goalState = {{0, 1 ,2},
+                                {3, 4 ,5},
+                                {6, 7, 8}};
+         
      public static void main(String[] args) throws Exception{
         
          
-         int[][] initialState = {{7, 2 ,4},
+         /*int[][] initialState = {{7, 2 ,4},
                                 {5, 0 ,6 },
                                 {8, 3, 1}};
+         */
          
-         int[][] goalState = {{0, 1 ,2},
-                              {3, 4 ,5},
-                              {6, 7, 8}};
+         int[][] initialState = {{5, 6, 2},
+                                 {4, 3 ,8},
+                                {1, 0, 7}};
          
          saveState(initialState);
          saveState(goalState);
+         createStartNode(initialState);
          
-         System.out.println(checkInStateSpace(goalState));
-         
-         //int numberOFMisplaced = giveMisplacedTiles(mat);
-         //int totalManhattanDistance = giveTotalManhattanDistance(initialState, goalState);
-         //System.out.println(totalManhattanDistance);
-        /*
-        for(int i =0; i < 3; i++) {
-            for(int j = 0; j <3; j++ ) {
-                mat[i][j] = (int) Math.floor(Math.random()*10);
-            }
-                
-        }*/
-     
      }
-     static void  createStartNode(int[][] matrix, final Algorithm algo) {
+     static void  createStartNode(int[][] matrix) {
         int[][] inputMatrix = matrix;
-        Node startNode = new Node();
-        startNode.setCostToGoal(0);
-        startNode.setCostFromStart(0);
-        startNode.setTotalCost(0);
-        startNode.setNodeType(NodeType.StartNode);
-        //startNode.id = nodeId;
-
+        
+        int startnodeI = 0;
+        int startnodeJ = 0;
+        
         for(int x = 0; x < matrix.length; x ++ ){
           for(int y = 0; y < matrix[0].length; y ++ ){
               if(matrix[x][y] == 0) {
-                startNode.setI(x);
-                startNode.setJ(y);
+                startnodeI = x;
+                startnodeJ = y;
               }
           }
         }
-
+        
+        PuzzleNode startNode = new PuzzleNode(startnodeI, startnodeJ);
+        startNode.startNode = true;
+        
         //frontier.add(startNode);
-        pq1 = new PriorityQueue<Node>(10, new Comparator<Node>(){
-                public int compare(Node o1, Node o2) {
-                if(algo == Algorithm.AStar) {
-                    if (o1.getTotalCost()> o2.getTotalCost())
-                    return 1;
-                else if (o1.getTotalCost() < o2.getTotalCost())
-                    return -1;
-                }
-                else if(algo == Algorithm.GreedyBestFirst) {
-                    if (o1.getCostToGoal()> o2.getCostToGoal())
-                    return 1;
-                else if (o1.getCostToGoal() < o2.getCostToGoal())
-                    return -1;
-                }
-
-                return 0;
-                }
+        pq1 = new PriorityQueue<int[][]>(10, new Comparator<int[][]>(){
+                public int compare(int[][] o1, int[][] o2) {
+                    
+                    if(giveHeuristics(o1, HUERISTIC_TYPE.MANHATTAN) > giveHeuristics(o2, HUERISTIC_TYPE.MANHATTAN))
+                        return 1;
+                    else 
+                        return -1;
+                  
+                }  
             });
         
-        pq1.add(startNode);
-        expansionList.add(startNode);
-        
-        //calculatepath(matrix);
+        pq1.add(matrix);
+       // expansionList.add(startNode);
+        frontier.add(startNode);
+        calculatepath(matrix);
   }
      
-     void calculatepath(int[][] matrix) {
+     static void calculatepath(int[][] matrix) {
         int rows = matrix.length;
         int cols = matrix[0].length; 
         
         Boolean visitedFlag = false;
         //PriorityQueue<Integer> pq2;
         
-        while(pq1 != null) {
-            Node top = pq1.poll();
-            
-            visitedFlag = false;
-            
+        while(pq1.size() > 0) {
+            int[][] top = pq1.poll();
+            matrix = top;
+            visitedFlag = checkInStateSpace(top);
+            if(count == 0) {
+                visitedFlag = false;
+                
+            }
+            count++;
             /*for (Node visitedList : expansionList) {
                 if ((top.getI() == visitedList.getI() && top.getJ() == visitedList.getJ()) && top.getNodeType() != NodeType.StartNode) {
                     visitedFlag = true;
                 }
-            }
+            }*/
             if(visitedFlag) {
                 continue;
-            }*/
-            
+            }
+            saveState(matrix);
             ArrayList<Integer> coordinates = giveCoordinates(0, matrix);
             
             int i = coordinates.get(0);
             int j = coordinates.get(1);
+            PuzzleNode pNode = new PuzzleNode(i , j);
             
              // i-1,j // i+1, j // i,j-1  // i,j+1
              if((i - 1) >= 0) {
-                 //swap(matrix[i][j], matrix[i - 1][j]); 
-                 if(createPath(top, matrix[i -1][j], i - 1, j)) 
+                  int matrix1[][] = swap(matrix, i, j, i - 1, j); 
+                
+                  pq1.add(matrix1);
+                 if(createPath(pNode, giveHeuristics(matrix1, HUERISTIC_TYPE.MANHATTAN), i - 1, j)) 
                     return;
              }
 
              if(i+1 < rows){
-                 if(createPath(top, matrix[i + 1][j], i + 1, j))
+                 int matrix1[][] = swap(matrix, i, j, i + 1, j);
+                
+                 pq1.add(matrix1);
+                 if(createPath(pNode, giveHeuristics(matrix1, HUERISTIC_TYPE.MANHATTAN), i + 1, j))
                     return;
              }
              
              if(j-1 >= 0){
-                 if(createPath(top, matrix[i][j - 1], i, j - 1))
+                 int matrix1[][] = swap(matrix, i, j, i, j - 1); 
+                
+                 pq1.add(matrix1);
+                 if(createPath(pNode, giveHeuristics(matrix1, HUERISTIC_TYPE.MANHATTAN), i, j - 1))
                     return;  
               }
 
              if(j+1 < cols){
-                 if(createPath(top, matrix[i][j + 1], i , j + 1))
+                 int matrix1[][] = swap(matrix, i, j, i, j + 1); 
+                
+                 pq1.add(matrix1);
+                 if(createPath(pNode, giveHeuristics(matrix1, HUERISTIC_TYPE.MANHATTAN), i , j + 1))
                     return;
              }
+              
              //expansionList.add(top);
         }
+        
   }
     
-             
-    static Boolean createPath(Node parent, int h, int i, int j) {
-      Node newNode = new Node();
-      newNode.setParent(parent);
-      newNode.setCostToGoal(h);
-      newNode.setI(i);
-      newNode.setJ(j);
-      //newNode.id = nodeId;
-      newNode.setCostFromStart(parent.getCostFromStart() + 1);
-      newNode.setTotalCost(newNode.getCostFromStart() + newNode.getCostToGoal());
-      //frontier.add(newNode);
-      //pq1.add(newNode);
+    static public int[][] swap(int[][] curMat, int cur_i, int cur_j, int new_i, int new_j) {
+        int [][] newMat = new int[curMat.length][];
+        for(int i = 0; i < curMat.length; i++)
+            newMat[i] = curMat[i].clone();
+
+        int temp = newMat[cur_i][cur_j];
+        newMat[cur_i][cur_j] = newMat[new_i][new_j];
+        newMat[new_i][new_j] = temp;
+        return newMat;
+    }
+    
+    static Boolean createPath(PuzzleNode parent, int h, int i, int j) {
+      PuzzleNode newNode = new PuzzleNode(i , j);
+      newNode.parent = parent;
       
+      frontier.add(newNode);
+       System.out.println("Misplaced tiles" + h);
       if(h == 0) {
-        System.out.println("End node found"); 
-        printTree(newNode);
+        System.out.println("End node found : " + count);
+        //printTree(newNode);
       
         return true;
       }
       return false;
   }
 
-   static void printTree(Node child) {
+   static void printTree(PuzzleNode child) {
     int pathCost = 0;
     while(child != null) {
       pathCost++;
-      System.out.println(child.getI() + " : "+ child.getJ());
-      child = child.getParent();
+      System.out.println(child.i + " : "+ child.j);
+      child = child.parent;
     }
      //System.out.println("PathCost size :"+pathCost+" expansionList size : " + expansionList.size());
   }
    
-    static public void giveHeuristics(int[][] mat, HUERISTIC_TYPE type) {
+    static public int giveHeuristics(int[][] mat, HUERISTIC_TYPE type) {
+        int heuristicValue = 0;
         switch(type) {  
             case MISPLACED: 
-                int numberOFMisplaced = giveMisplacedTiles(mat);
+                heuristicValue = giveMisplacedTiles(mat);
             break;
             
             case MANHATTAN: 
-                
+                heuristicValue = giveTotalManhattanDistance(mat);
             break;
             
             case GASCHNIG: 
@@ -193,6 +216,7 @@ public class Puzzle {
             break;
             
         }
+       return heuristicValue;
     }
      
    static public int giveMisplacedTiles(int[][] mat) {
@@ -201,7 +225,7 @@ public class Puzzle {
         int numberOfMisplaced = 0;
         for(int i= 0; i< rows; i++) {
             for(int j = 0; j<cols; j++) {
-                if(mat[i][j] != (i +j + 1) ) {
+                if(mat[i][j] != goalState[i][j] ) {
                     numberOfMisplaced++;
                 }
             }
@@ -209,7 +233,7 @@ public class Puzzle {
         return numberOfMisplaced;
     }
    
-   static public int giveTotalManhattanDistance(int[][] initialState, int[][] goalState) {
+   static public int giveTotalManhattanDistance(int[][] initialState) {
         int rows = initialState.length;
         int cols = initialState[0].length; 
         int totalManhattanDistance = 0;
@@ -225,14 +249,14 @@ public class Puzzle {
         return totalManhattanDistance;  
    }
    
-   static public ArrayList<Integer> giveCoordinates(int num, int[][] goalState) {
-        int rows = goalState.length;
-        int cols = goalState[0].length; 
+   static public ArrayList<Integer> giveCoordinates(int num, int[][] curMatrix) {
+        int rows = curMatrix.length;
+        int cols = curMatrix[0].length; 
         
         ArrayList<Integer> coordinates = new ArrayList<Integer>();
         for(int i= 0; i< rows; i++) {
             for(int j = 0; j<cols; j++) {
-                if(num == goalState[i][j]) {
+                if(num == curMatrix[i][j]) {
                     coordinates.add(i);
                     coordinates.add(j);
                     return coordinates;
@@ -276,5 +300,5 @@ public class Puzzle {
         else 
             return false;
    }
-  
+
 }
