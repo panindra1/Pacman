@@ -44,19 +44,27 @@ public class Puzzle {
          
      public static void main(String[] args) throws Exception{
         
+         /*int[][] initialState = {{0, 3 ,2},
+                                {1, 4 ,5 },
+                                {6, 7, 8}};*/
+        
          
-         /*int[][] initialState = {{7, 2 ,4},
+         int[][] initialState = {{7, 2 ,4},
                                 {5, 0 ,6 },
                                 {8, 3, 1}};
-         */
          
-         int[][] initialState = {{5, 6, 2},
+         
+        /* int[][] initialState = {{5, 6, 2},
                                  {4, 3 ,8},
-                                {1, 0, 7}};
-         
-         saveState(initialState);
-         saveState(goalState);
-         createStartNode(initialState);
+                                {1, 0, 7}};*/
+         if(checkIfSolvable(initialState)) {
+            saveState(initialState);
+            saveState(goalState);
+            createStartNode(initialState);
+         }
+         else {
+             System.err.println("Problem cannot be solved");
+         }
          
      }
      static void  createStartNode(int[][] matrix) {
@@ -107,15 +115,10 @@ public class Puzzle {
             matrix = top;
             visitedFlag = checkInStateSpace(top);
             if(count == 0) {
-                visitedFlag = false;
-                
+                visitedFlag = false;           
             }
             count++;
-            /*for (Node visitedList : expansionList) {
-                if ((top.getI() == visitedList.getI() && top.getJ() == visitedList.getJ()) && top.getNodeType() != NodeType.StartNode) {
-                    visitedFlag = true;
-                }
-            }*/
+            
             if(visitedFlag) {
                 continue;
             }
@@ -126,7 +129,6 @@ public class Puzzle {
             int j = coordinates.get(1);
             PuzzleNode pNode = new PuzzleNode(i , j);
             
-             // i-1,j // i+1, j // i,j-1  // i,j+1
              if((i - 1) >= 0) {
                   int matrix1[][] = swap(matrix, i, j, i - 1, j); 
                 
@@ -158,10 +160,7 @@ public class Puzzle {
                  if(createPath(pNode, giveHeuristics(matrix1, HUERISTIC_TYPE.MANHATTAN), i , j + 1))
                     return;
              }
-              
-             //expansionList.add(top);
         }
-        
   }
     
     static public int[][] swap(int[][] curMat, int cur_i, int cur_j, int new_i, int new_j) {
@@ -183,8 +182,7 @@ public class Puzzle {
        System.out.println("Misplaced tiles" + h);
       if(h == 0) {
         System.out.println("End node found : " + count);
-        //printTree(newNode);
-      
+        //printTree(newNode);      
         return true;
       }
       return false;
@@ -300,5 +298,66 @@ public class Puzzle {
         else 
             return false;
    }
+   
+    static public Boolean checkIfSolvable(int[][] matrix) {
+        int rows = matrix.length;
+       int cols = matrix[0].length; 
+        ArrayList<Integer> list = new ArrayList<Integer>();
+        
+        for(int i= 0; i< rows; i++) {
+            for(int j = 0; j<cols; j++) {
+                list.add(matrix[i][j]);
+            }
+        }
+        
+       if(mergesort(list, 0, list.size()) %2 == 0)
+           return true;
+       else
+           return false;
+   }
+    
+   static private int mergesort(ArrayList<Integer> list, int low, int high) {
+    // check if low is smaller then high, if not then the array is sorted
+    if (low < high) {
+      // Get the index of the element which is in the middle
+      int middle = low + (high - low) / 2;
+      
+      return mergesort(list, low, middle) + mergesort(list, middle + 1, high) + merge(list, low, middle, high);
+    }
+    return 0;
+  }
 
+  static private int merge(ArrayList<Integer> numbers,int low, int middle, int high) {
+      int inv_count = 0;
+      int[] helper = new int[numbers.size()];
+    // Copy both parts into the helper array
+    for (int i = low; i <= high; i++) {
+      helper[i] = numbers.get(i);
+    }
+
+    int i = low;
+    int j = middle + 1;
+    int k = low;
+    // Copy the smallest values from either the left or the right side back
+    // to the original array
+    while (i <= middle && j <= high) {
+      if (helper[i] <= helper[j]) {
+        numbers.add(helper[i]);
+        i++;
+      } else {
+        numbers.add(helper[j]);
+        j++;
+        inv_count += (middle - i);
+      }
+      k++;
+    }
+    // Copy the rest of the left side of the array into the target array
+    while (i <= middle) {
+      numbers.add(helper[i]);
+      k++;
+      i++;
+    }
+  return inv_count;
+  }
+  
 }
