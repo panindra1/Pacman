@@ -38,26 +38,31 @@ public class Puzzle {
      static LinkedList<PuzzleNode> frontier = new LinkedList<>();
      static PriorityQueue<int[][]> pq1;
      static int count = 0;
-     static int[][] goalState = {{0, 1 ,2},
+    /* static int[][] goalState = {{0, 1 ,2},
                                 {3, 4 ,5},
-                                {6, 7, 8}};
+                                {6, 7, 8}};*/
+     
+     static int[][] goalState = {{1 ,2, 3},
+                                {4 ,5, 6},
+                                {7, 8, 0}};
          
      public static void main(String[] args) throws Exception{
         
-         /*int[][] initialState = {{0, 3 ,2},
+        /* int[][] initialState = {{0, 3 ,2},
                                 {1, 4 ,5 },
                                 {6, 7, 8}};*/
         
          
-         int[][] initialState = {{7, 2 ,4},
-                                {5, 0 ,6 },
-                                {8, 3, 1}};
+        /*int[][] initialState = {{1, 2 , 4},
+                                {3, 0 ,5 },
+                                {6, 7, 8}};*/
          
          
-        /* int[][] initialState = {{5, 6, 2},
-                                 {4, 3 ,8},
-                                {1, 0, 7}};*/
-         if(checkIfSolvable(initialState)) {
+         int[][] initialState = {{1, 3, 7},
+                                 {6, 0 ,5},
+                                {2, 4, 8}};
+         
+         if(true/*checkIfSolvable(initialState)*/) {
             saveState(initialState);
             saveState(goalState);
             createStartNode(initialState);
@@ -88,78 +93,80 @@ public class Puzzle {
         //frontier.add(startNode);
         pq1 = new PriorityQueue<int[][]>(10, new Comparator<int[][]>(){
                 public int compare(int[][] o1, int[][] o2) {
-                    
                     if(giveHeuristics(o1, HUERISTIC_TYPE.MANHATTAN) > giveHeuristics(o2, HUERISTIC_TYPE.MANHATTAN))
                         return 1;
                     else 
                         return -1;
-                  
                 }  
             });
         
         pq1.add(matrix);
        // expansionList.add(startNode);
         frontier.add(startNode);
-        calculatepath(matrix);
+        calculatepath(matrix, HUERISTIC_TYPE.GASCHNIG);
   }
      
-     static void calculatepath(int[][] matrix) {
-        int rows = matrix.length;
-        int cols = matrix[0].length; 
-        
-        Boolean visitedFlag = false;
-        //PriorityQueue<Integer> pq2;
-        
-        while(pq1.size() > 0) {
-            int[][] top = pq1.poll();
-            matrix = top;
-            visitedFlag = checkInStateSpace(top);
-            if(count == 0) {
-                visitedFlag = false;           
-            }
-            count++;
-            
-            if(visitedFlag) {
-                continue;
-            }
-            saveState(matrix);
-            ArrayList<Integer> coordinates = giveCoordinates(0, matrix);
-            
-            int i = coordinates.get(0);
-            int j = coordinates.get(1);
-            PuzzleNode pNode = new PuzzleNode(i , j);
-            
-             if((i - 1) >= 0) {
-                  int matrix1[][] = swap(matrix, i, j, i - 1, j); 
-                
-                  pq1.add(matrix1);
-                 if(createPath(pNode, giveHeuristics(matrix1, HUERISTIC_TYPE.MANHATTAN), i - 1, j)) 
-                    return;
-             }
+     static void calculatepath(int[][] matrix, HUERISTIC_TYPE type) {
+        if(type == HUERISTIC_TYPE.GASCHNIG) {
+            matrix = gasching(matrix);
+        }
+        else {
+            int rows = matrix.length;
+            int cols = matrix[0].length; 
 
-             if(i+1 < rows){
-                 int matrix1[][] = swap(matrix, i, j, i + 1, j);
-                
-                 pq1.add(matrix1);
-                 if(createPath(pNode, giveHeuristics(matrix1, HUERISTIC_TYPE.MANHATTAN), i + 1, j))
-                    return;
-             }
-             
-             if(j-1 >= 0){
-                 int matrix1[][] = swap(matrix, i, j, i, j - 1); 
-                
-                 pq1.add(matrix1);
-                 if(createPath(pNode, giveHeuristics(matrix1, HUERISTIC_TYPE.MANHATTAN), i, j - 1))
-                    return;  
-              }
+            Boolean visitedFlag = false;
 
-             if(j+1 < cols){
-                 int matrix1[][] = swap(matrix, i, j, i, j + 1); 
-                
-                 pq1.add(matrix1);
-                 if(createPath(pNode, giveHeuristics(matrix1, HUERISTIC_TYPE.MANHATTAN), i , j + 1))
-                    return;
-             }
+            while(pq1.size() > 0) {
+                int[][] top = pq1.poll();
+                matrix = top;
+                visitedFlag = checkInStateSpace(top);
+                if(count == 0) {
+                    visitedFlag = false;           
+                }
+                count++;
+
+                if(visitedFlag) {
+                    continue;
+                }
+                saveState(matrix);
+                ArrayList<Integer> coordinates = giveCoordinates(0, matrix);
+
+                int i = coordinates.get(0);
+                int j = coordinates.get(1);
+                PuzzleNode pNode = new PuzzleNode(i , j);
+
+                if((i - 1) >= 0) {
+                   int matrix1[][] = swap(matrix, i, j, i - 1, j); 
+
+                   pq1.add(matrix1);
+                   if(createPath(pNode, giveHeuristics(matrix1, type), i - 1, j)) 
+                     return;
+               }
+
+                if(i+1 < rows){
+                    int matrix1[][] = swap(matrix, i, j, i + 1, j);
+
+                    pq1.add(matrix1);
+                    if(createPath(pNode, giveHeuristics(matrix1, type), i + 1, j))
+                       return;
+                }
+
+                if(j-1 >= 0){
+                    int matrix1[][] = swap(matrix, i, j, i, j - 1); 
+
+                    pq1.add(matrix1);
+                    if(createPath(pNode, giveHeuristics(matrix1, type), i, j - 1))
+                       return;  
+                 }
+
+                if(j+1 < cols){
+                    int matrix1[][] = swap(matrix, i, j, i, j + 1); 
+
+                    pq1.add(matrix1);
+                    if(createPath(pNode, giveHeuristics(matrix1, type), i , j + 1))
+                       return;
+                }
+            }
         }
   }
     
@@ -195,7 +202,6 @@ public class Puzzle {
       System.out.println(child.i + " : "+ child.j);
       child = child.parent;
     }
-     //System.out.println("PathCost size :"+pathCost+" expansionList size : " + expansionList.size());
   }
    
     static public int giveHeuristics(int[][] mat, HUERISTIC_TYPE type) {
@@ -203,16 +209,12 @@ public class Puzzle {
         switch(type) {  
             case MISPLACED: 
                 heuristicValue = giveMisplacedTiles(mat);
-            break;
-            
+            break;       
             case MANHATTAN: 
                 heuristicValue = giveTotalManhattanDistance(mat);
             break;
-            
             case GASCHNIG: 
-                
             break;
-            
         }
        return heuristicValue;
     }
@@ -265,8 +267,6 @@ public class Puzzle {
        return coordinates;
    }
    
-   
-   
    static public void saveState(int[][] stateSpace) {
        int rows = stateSpace.length;
        int cols = stateSpace[0].length; 
@@ -277,30 +277,18 @@ public class Puzzle {
                 list.add(stateSpace[i][j]);
             }
         }
-        
         stateSpaceMap.put(list, 1);
    } 
-   
-   
-   static public Boolean checkInStateSpace(int[][] stateSpace) {
-       int rows = stateSpace.length;
-       int cols = stateSpace[0].length; 
-        ArrayList<Integer> list = new ArrayList<Integer>();
-        
-        for(int i= 0; i< rows; i++) {
-            for(int j = 0; j<cols; j++) {
-                list.add(stateSpace[i][j]);
-            }
-        }
-        
-        if(stateSpaceMap.containsKey(list))
+
+   static public Boolean checkInStateSpace(int[][] stateSpace) { 
+        if(stateSpaceMap.containsKey(convertToList(stateSpace)))
             return true;
         else 
             return false;
    }
    
     static public Boolean checkIfSolvable(int[][] matrix) {
-        int rows = matrix.length;
+       int rows = matrix.length;
        int cols = matrix[0].length; 
         ArrayList<Integer> list = new ArrayList<Integer>();
         
@@ -360,4 +348,92 @@ public class Puzzle {
   return inv_count;
   }
   
+  static public int[][] gasching(int[][] matrix) {
+      ArrayList<Integer> list = convertToList(matrix);
+      ArrayList<Integer> bList = new ArrayList<>();
+      
+      int n = 0;
+      while(n <= 8) {
+        for (int i = 0; i < list.size(); i++) {
+          for (int j = 0; j < list.size(); j++) {
+              if(list.get(j) == i) {
+                  bList.add(j);
+              }
+          }
+        }
+        int temp = list.get(bList.get(n));
+        int swapWith = list.get(bList.get(bList.get(n)));
+        list.set(bList.get(n), swapWith);
+        list.set(bList.get(bList.get(n)), temp); 
+        bList.clear();
+        
+        Boolean sorted = true;
+        ArrayList<Integer> goalList = convertToList(goalState);
+        for (int i = 0; i < list.size(); i++) {
+          if(list.get(i) != goalList.get(i)) {
+              sorted = false;
+              break;
+          }
+        }
+        n++;
+        if(sorted) {
+            System.out.println(" Pathcost:" + (n + 1) +" Expanded nodes: " + (n + 1));
+            break;
+        }
+      }
+      System.out.println(" : " + list);
+      /*int blankPos = -1;
+      int toSwapPos = -1;
+      
+      for (int i = 0; i < list.size(); i++) {
+          if(list.get(i) == 0) {
+              blankPos = i;
+              break;
+          }
+      }
+      
+      for (int j = 0; j < list.size(); j++) {
+          if(list.get(j) == blankPos) {
+              toSwapPos = j;
+              if(toSwapPos == blankPos) {
+                  
+                  continue;
+              }else {
+                  break;
+              }
+          }
+      }
+      
+      int temp = list.get(toSwapPos);
+      list.set(blankPos, temp);
+      list.set(toSwapPos, 0);
+      */
+      return convertListToMatrix(list);
+  }
+  
+  static public ArrayList<Integer> convertToList(int[][] matrix) {
+      int rows = matrix.length;
+      int cols = matrix[0].length; 
+       
+      ArrayList<Integer> list = new ArrayList<>();
+        
+      for(int i= 0; i< rows; i++) {
+        for(int j = 0; j<cols; j++) {
+            list.add(matrix[i][j]);
+        }
+      }
+      return list;
+  }
+  
+  static public int[][] convertListToMatrix(ArrayList<Integer> list) {
+      int[][] matrix = new int[3][3];
+      int count = 0;
+      for(int i= 0; i< list.size() / 3; i++) {
+         for(int row = 0; row < list.size() / 3; row++) {
+             matrix[i][row] = list.get(count);
+             count++;
+         }
+      }   
+      return matrix;
+  }
 }
