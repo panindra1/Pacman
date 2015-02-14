@@ -3,7 +3,6 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package pacman;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -108,7 +107,8 @@ public class Puzzle {
      
      static void calculatepath(int[][] matrix, HUERISTIC_TYPE type) {
         if(type == HUERISTIC_TYPE.GASCHNIG) {
-            matrix = gasching(matrix);
+            //matrix = gasching(matrix);
+        	matrix = giveGaschnigHeuristicMatrix(matrix);
         }
         else {
             int rows = matrix.length;
@@ -214,6 +214,7 @@ public class Puzzle {
                 heuristicValue = giveTotalManhattanDistance(mat);
             break;
             case GASCHNIG: 
+            	//heuristicValue = giveGaschnigHeuristic(mat);
             break;
         }
        return heuristicValue;
@@ -249,6 +250,57 @@ public class Puzzle {
         return totalManhattanDistance;  
    }
    
+   static public int[][] giveGaschnigHeuristicMatrix(int[][] initialState){
+	   int rows = initialState.length;
+	   int cols = initialState[0].length;
+	   ArrayList<int[][]> posOutcomes = new ArrayList<int[][]>();
+	   int iValue = -1;
+	   int jValue = -1;
+	   
+	   
+	   //find where 0 is
+	   for(int i=0; i<rows; i++){
+		  for(int j=0; j<cols; j++){
+			  if(initialState[i][j] == 0){
+				  iValue = i;
+				  jValue = j;
+			  }
+		  }
+	   }
+	   
+	   //try out all possible swap combinations
+	   int[][] matrix = new int[3][3];
+	   int minIndex = -1;
+	   int index = -1;
+	   //int[] misplacedTilesCountArr = new int[10];
+	   ArrayList<Integer> misplacedTilesArr = new ArrayList<Integer>();
+	   int misplacedTiles = 100;
+	   int min = 100;
+	   for(int x=0; x<rows; x++){
+		   for(int y=0; y<cols; y++){
+			   if(x==iValue && y==jValue){
+				   continue;
+			   }
+			   else {
+				   matrix = swap(initialState, iValue, jValue, x, y);
+				   posOutcomes.add(matrix);
+				   index++;
+				   misplacedTiles = giveMisplacedTiles(matrix);
+				   misplacedTilesArr.add(misplacedTiles);
+				   if(min < misplacedTiles){
+					   min = misplacedTiles;
+					   minIndex = index;
+				   }
+			   }
+		   }
+	   }
+	   
+	   //get the optimal matrix in posOutcomes with index minIndex
+	   return posOutcomes.get(minIndex);	   
+	   
+	   
+	   
+   }
    static public ArrayList<Integer> giveCoordinates(int num, int[][] curMatrix) {
         int rows = curMatrix.length;
         int cols = curMatrix[0].length; 
@@ -436,4 +488,6 @@ public class Puzzle {
       }   
       return matrix;
   }
+  
+  
 }
