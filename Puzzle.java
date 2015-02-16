@@ -6,13 +6,11 @@
 package pacman;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.PriorityQueue;
-import java.util.Random;
 
 /**
  *
@@ -45,14 +43,13 @@ public class Puzzle {
                                 {3, 4 ,5},
                                 {6, 7, 8}};
     
-    static int[][] initialState = {{7, 2, 6},
-                                  {4, 5 ,1},
-                                  {8, 3, 0}};
+    static int[][] initialState = {{1, 4, 2},
+                                  {3, 0 ,5},
+                                  {6, 7, 8}};
          
      
-    public static void main(String[] args) throws Exception{
-       
-        if(true/*checkIfSolvable(initialState)*/) {
+    public static void main(String[] args) throws Exception{       
+        if(checkIfSolvable(initialState)) {
            saveState(initialState);
            saveState(goalState);
            createStartNode(initialState);
@@ -93,10 +90,11 @@ public class Puzzle {
         pq1.add(matrix);
        // expansionList.add(startNode);
         frontier.add(startNode);
-        calculatepath(matrix, HUERISTIC_TYPE.GASCHNIG);
+        calculatepath(matrix, HUERISTIC_TYPE.MISPLACED);
   }
      
      static void calculatepath(int[][] matrix, HUERISTIC_TYPE type) {
+        int expandedNodeCount = 1; 
         int count = 0;
         if(type == HUERISTIC_TYPE.GASCHNIG) {
             while(pq1.size() > 0) {
@@ -127,10 +125,10 @@ public class Puzzle {
                 }
             }
             System.out.println("Path cost if we get output:" + count);
+            
         }
         
-        else {
-                         
+        else {                         
             int rows = matrix.length;
             int cols = matrix[0].length;
 
@@ -138,19 +136,30 @@ public class Puzzle {
 
             while(pq1.size() > 0) {
                 int[][] top = pq1.poll();
+                
                 matrix = top;
                 visitedFlag = checkInStateSpace(top);
                 if(count == 0) {
                     visitedFlag = false;          
                 }
-                count++;
-
-                if(visitedFlag) {
+                
+                if(checkGoalState(top)) {
+                    System.out.println("Path cost :" + count);
+                    System.out.println("Expanded Node count = " + expandedNodeCount);
+                    break;
+                }
+                
+                if(visitedFlag){
                     continue;
                 }
+                
+                count++;
+                
                 saveState(matrix);
+                printMatrix(matrix);
+                pq1.clear();
                 ArrayList<Integer> coordinates = giveCoordinates(0, matrix);
-               
+                ArrayList<Integer> singleList =  convertToList(matrix);
                 //searc for the node in the frontier with I and J as given below
 
                 int i = coordinates.get(0);
@@ -159,48 +168,66 @@ public class Puzzle {
                 PuzzleNode pNode = null;
                 boolean foundParent = false;
                
-                for(int x=0; x<frontier.size(); x++){
+                /*for(int x=0; x<frontier.size(); x++){
                     pNode = frontier.get(x);
                     if(pNode.i == i && pNode.j == j){
                         foundParent = true;
                         break;
                     }
-                }
+                }*/
 
                 if(!foundParent){
                     pNode = new PuzzleNode(i, j);
                 }
-               
+                int var = 0;
                 if((i - 1) >= 0) {
-                   int matrix1[][] = swap(matrix, i, j, i - 1, j);
+                    expandedNodeCount++;
+                   var = (i - 1) * 3 + j;
+                   if( var != singleList.get(var)) {
+                        int matrix1[][] = swap(matrix, i, j, i - 1, j);
 
-                   pq1.add(matrix1);
-                   if(createPath(pNode, giveHeuristics(matrix1, type), i - 1, j))
-                     return;
+                        pq1.add(matrix1);
+                        
+                        if(createPath(pNode, giveHeuristics(matrix1, type), i - 1, j))
+                          return;
+                   }
                }
 
                 if(i+1 < rows){
-                    int matrix1[][] = swap(matrix, i, j, i + 1, j);
+                    expandedNodeCount++;
+                    var = (i + 1) * 3 + j;
+                    if( var != singleList.get(var)) {
+                        int matrix1[][] = swap(matrix, i, j, i + 1, j);
 
-                    pq1.add(matrix1);
-                    if(createPath(pNode, giveHeuristics(matrix1, type), i + 1, j))
-                       return;
+                        pq1.add(matrix1);
+                        if(createPath(pNode, giveHeuristics(matrix1, type), i + 1, j))
+                           return;
+                    }
                 }
 
                 if(j-1 >= 0){
-                    int matrix1[][] = swap(matrix, i, j, i, j - 1);
+                    expandedNodeCount++;
+                        
+                     var = i * 3 + (j - 1);
+                    if( var != singleList.get(var)) {
+                        int matrix1[][] = swap(matrix, i, j, i, j - 1);
 
-                    pq1.add(matrix1);
-                    if(createPath(pNode, giveHeuristics(matrix1, type), i, j - 1))
-                       return; 
+                        pq1.add(matrix1);
+                        if(createPath(pNode, giveHeuristics(matrix1, type), i, j - 1))
+                           return; 
+                    }
                  }
 
                 if(j+1 < cols){
-                    int matrix1[][] = swap(matrix, i, j, i, j + 1);
+                    expandedNodeCount++;
+                     var = i * 3 + (j + 1);
+                    if( var != singleList.get(var)) {
+                        int matrix1[][] = swap(matrix, i, j, i, j + 1);
 
-                    pq1.add(matrix1);
-                    if(createPath(pNode, giveHeuristics(matrix1, type), i , j + 1))
-                       return;
+                        pq1.add(matrix1);
+                        if(createPath(pNode, giveHeuristics(matrix1, type), i , j + 1))
+                           return;
+                    }
                 }
             }
         }
@@ -222,12 +249,6 @@ public class Puzzle {
       newNode.parent = parent;
       
       frontier.add(newNode);
-       System.out.println("Misplaced tiles" + h);
-      if(h == 0) {
-        System.out.println("End node found : " + count);
-        printTree(newNode);      
-        return true;
-      }
       return false;
   }
 
@@ -271,20 +292,24 @@ public class Puzzle {
     }
    
    static public int giveTotalManhattanDistance(int[][] matrix) {
-        int rows = matrix.length;
+        return giveDistance(matrix, goalState) + (2 * giveDistance(matrix, initialState));  
+   }
+   
+    static public int giveDistance(int[][] matrix, int[][] toCompare) {
+         int rows = matrix.length;
         int cols = matrix[0].length; 
         int totalManhattanDistance = 0;
         
-        for(int i= 0; i< rows; i++) {
+         for(int i= 0; i< rows; i++) {
             for(int j = 0; j<cols; j++) {
                 if(matrix[i][j] != 0) {
-                    ArrayList<Integer> coordinates = giveCoordinates(matrix[i][j], goalState);
+                    ArrayList<Integer> coordinates = giveCoordinates(matrix[i][j], toCompare);
                     totalManhattanDistance += Math.abs(coordinates.get(0) - i) + Math.abs(coordinates.get(1) - j);
                 }
             }
         }
-        return totalManhattanDistance;  
-   }
+         return totalManhattanDistance;
+    }
    
    static public int[][] giveGaschnigHeuristicMatrix(int[][] initialMatrix){
 	   int rows = initialMatrix.length;
@@ -340,7 +365,6 @@ public class Puzzle {
                 }                
             }
         }
-       
        return coordinates;
    }
    
@@ -522,5 +546,18 @@ public class Puzzle {
             }
         }
         return true;
+    }
+    
+    static public void printMatrix(int[][] curMatrix) {
+         int rows = curMatrix.length;
+        int cols = curMatrix[0].length; 
+       
+        for(int i= 0; i< rows; i++) {
+            for(int j = 0; j<cols; j++) {
+                System.out.print(curMatrix[i][j] );
+            }
+            System.out.println("");
+        }
+        System.out.println("\n");
     }
 }
