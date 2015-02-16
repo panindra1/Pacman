@@ -6,11 +6,13 @@
 package pacman;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.PriorityQueue;
+import java.util.Random;
 
 /**
  *
@@ -33,47 +35,33 @@ class PuzzleNode {
 }
 
 public class Puzzle {
-     static Map<ArrayList<Integer>, Integer> stateSpaceMap = new HashMap<ArrayList<Integer>, Integer>();
-     static LinkedList<Node> expansionList = new LinkedList<>();
-     static LinkedList<PuzzleNode> frontier = new LinkedList<>();
-     static PriorityQueue<int[][]> pq1;
-     static int count = 0;
-     static int total = 0;
-     static int[][] goalState = {{0, 1 ,2},
+    static Map<ArrayList<Integer>, Integer> stateSpaceMap = new HashMap<ArrayList<Integer>, Integer>();
+    static LinkedList<Node> expansionList = new LinkedList<>();
+    static LinkedList<PuzzleNode> frontier = new LinkedList<>();
+    static PriorityQueue<int[][]> pq1;
+    static int count = 0;
+    static int total = 0;
+    static int[][] goalState = {{0, 1 ,2},
                                 {3, 4 ,5},
                                 {6, 7, 8}};
-        
-     public static void main(String[] args) throws Exception{
-        
-        /* int[][] initialState = {{0, 3 ,2},
-                                {1, 4 ,5 },
-                                {6, 7, 8}};*/
-        
+    
+    static int[][] initialState = {{7, 2, 6},
+                                  {4, 5 ,1},
+                                  {8, 3, 0}};
          
-        /*int[][] initialState = {{1, 2 , 4},
-                                {3, 0 ,5 },
-                                {6, 7, 8}};*/
-         
-         
-         int[][] initialState = {{1, 2, 0},
-                                 {3, 4 ,5},
-                                {6, 7, 8}};
-         
-          /* int[][]  initialState = {{7, 8, 3},
-                                    {4, 5, 6},
-                                    {1, 2, 0}};*/
-         
-                                
-         if(checkIfSolvable(initialState)) {
-            saveState(initialState);
-            saveState(goalState);
-            createStartNode(initialState);
-         }
-         else {
-             System.err.println("Problem cannot be solved");
-         }
-         
+     
+    public static void main(String[] args) throws Exception{
+       
+        if(true/*checkIfSolvable(initialState)*/) {
+           saveState(initialState);
+           saveState(goalState);
+           createStartNode(initialState);
+        }
+        else {
+            System.out.println("Problem cannot be solved");
+        }
      }
+     
      static void  createStartNode(int[][] matrix) {
         int[][] inputMatrix = matrix;
         
@@ -105,7 +93,7 @@ public class Puzzle {
         pq1.add(matrix);
        // expansionList.add(startNode);
         frontier.add(startNode);
-        calculatepath(matrix, HUERISTIC_TYPE.MANHATTAN);
+        calculatepath(matrix, HUERISTIC_TYPE.GASCHNIG);
   }
      
      static void calculatepath(int[][] matrix, HUERISTIC_TYPE type) {
@@ -115,8 +103,10 @@ public class Puzzle {
                 int[][] top = pq1.poll();
 
                 if(!checkGoalState(top)) {
-                   
-                    if(giveMisplacedTiles(top) == 2) {
+                    if(top[0][0] == 0) {
+                        count++;
+                    } 
+                    if(giveMisplacedTiles(top) == 2 && top[0][0] != 0) {
                         ArrayList<Integer> coordinates = giveCoordinates(0, top);
                         int i = coordinates.get(0);
                         int j = coordinates.get(1);
@@ -126,7 +116,7 @@ public class Puzzle {
                         break;
                     }
                      //matrix = giveGaschnigHeuristicMatrix(top);
-                        matrix = gasching(matrix); 
+                     matrix = gaschnig(matrix); 
                     //saveState(matrix);
                     
                     pq1.add(matrix);
@@ -137,26 +127,21 @@ public class Puzzle {
                 }
             }
             System.out.println("Path cost if we get output:" + count);
-            
-           
         }
+        
         else {
-            ArrayList<Integer> coordinates = giveCoordinates(0, matrix);
-            int i = coordinates.get(0);
-            int j = coordinates.get(1);
-            PuzzleNode pNode = new PuzzleNode(i , j);
+                         
             int rows = matrix.length;
-            int cols = matrix[0].length; 
+            int cols = matrix[0].length;
 
             Boolean visitedFlag = false;
 
             while(pq1.size() > 0) {
                 int[][] top = pq1.poll();
                 matrix = top;
-                
                 visitedFlag = checkInStateSpace(top);
                 if(count == 0) {
-                    visitedFlag = false;
+                    visitedFlag = false;          
                 }
                 count++;
 
@@ -164,12 +149,33 @@ public class Puzzle {
                     continue;
                 }
                 saveState(matrix);
+                ArrayList<Integer> coordinates = giveCoordinates(0, matrix);
+               
+                //searc for the node in the frontier with I and J as given below
 
+                int i = coordinates.get(0);
+                int j = coordinates.get(1);
+                //PuzzleNode pNode = new PuzzleNode(i , j);
+                PuzzleNode pNode = null;
+                boolean foundParent = false;
+               
+                for(int x=0; x<frontier.size(); x++){
+                    pNode = frontier.get(x);
+                    if(pNode.i == i && pNode.j == j){
+                        foundParent = true;
+                        break;
+                    }
+                }
+
+                if(!foundParent){
+                    pNode = new PuzzleNode(i, j);
+                }
+               
                 if((i - 1) >= 0) {
-                   int matrix1[][] = swap(matrix, i, j, i - 1, j); 
+                   int matrix1[][] = swap(matrix, i, j, i - 1, j);
 
                    pq1.add(matrix1);
-                   if(createPath(pNode, giveHeuristics(matrix1, type), i - 1, j)) 
+                   if(createPath(pNode, giveHeuristics(matrix1, type), i - 1, j))
                      return;
                }
 
@@ -182,15 +188,15 @@ public class Puzzle {
                 }
 
                 if(j-1 >= 0){
-                    int matrix1[][] = swap(matrix, i, j, i, j - 1); 
+                    int matrix1[][] = swap(matrix, i, j, i, j - 1);
 
                     pq1.add(matrix1);
                     if(createPath(pNode, giveHeuristics(matrix1, type), i, j - 1))
-                       return;  
+                       return; 
                  }
 
                 if(j+1 < cols){
-                    int matrix1[][] = swap(matrix, i, j, i, j + 1); 
+                    int matrix1[][] = swap(matrix, i, j, i, j + 1);
 
                     pq1.add(matrix1);
                     if(createPath(pNode, giveHeuristics(matrix1, type), i , j + 1))
@@ -219,7 +225,7 @@ public class Puzzle {
        System.out.println("Misplaced tiles" + h);
       if(h == 0) {
         System.out.println("End node found : " + count);
-        //printTree(newNode);      
+        printTree(newNode);      
         return true;
       }
       return false;
@@ -264,15 +270,15 @@ public class Puzzle {
         return numberOfMisplaced;
     }
    
-   static public int giveTotalManhattanDistance(int[][] initialState) {
-        int rows = initialState.length;
-        int cols = initialState[0].length; 
+   static public int giveTotalManhattanDistance(int[][] matrix) {
+        int rows = matrix.length;
+        int cols = matrix[0].length; 
         int totalManhattanDistance = 0;
         
         for(int i= 0; i< rows; i++) {
             for(int j = 0; j<cols; j++) {
-                if(initialState[i][j] != 0) {
-                    ArrayList<Integer> coordinates = giveCoordinates(initialState[i][j], goalState);
+                if(matrix[i][j] != 0) {
+                    ArrayList<Integer> coordinates = giveCoordinates(matrix[i][j], goalState);
                     totalManhattanDistance += Math.abs(coordinates.get(0) - i) + Math.abs(coordinates.get(1) - j);
                 }
             }
@@ -280,12 +286,12 @@ public class Puzzle {
         return totalManhattanDistance;  
    }
    
-   static public int[][] giveGaschnigHeuristicMatrix(int[][] initialState){
-	   int rows = initialState.length;
-	   int cols = initialState[0].length;
+   static public int[][] giveGaschnigHeuristicMatrix(int[][] initialMatrix){
+	   int rows = initialMatrix.length;
+	   int cols = initialMatrix[0].length;
 	   ArrayList<int[][]> posOutcomes = new ArrayList<int[][]>();
-	   int iValue = giveCoordinates(0, initialState).get(0);
-	   int jValue = giveCoordinates(0, initialState).get(1);
+	   int iValue = giveCoordinates(0, initialMatrix).get(0);
+	   int jValue = giveCoordinates(0, initialMatrix).get(1);
 	   
 	   //try out all possible swap combinations
 	   int[][] matrix = new int[3][3];
@@ -301,7 +307,7 @@ public class Puzzle {
                         continue;
                     }
                     else {
-                        matrix = swap(initialState, iValue, jValue, x, y);
+                        matrix = swap(initialMatrix, iValue, jValue, x, y);
                         posOutcomes.add(matrix);
                         index++;
                         misplacedTiles = giveMisplacedTiles(matrix);
@@ -361,17 +367,19 @@ public class Puzzle {
     static public Boolean checkIfSolvable(int[][] matrix) {
        int rows = matrix.length;
        int cols = matrix[0].length; 
-       int[] list = new int[rows * cols];
+       int[] list = new int[8];
         
        int count = 0;
         for(int i= 0; i< rows; i++) {
             for(int j = 0; j<cols; j++) {
-                list[count] = matrix[i][j];
-                count++;
+                if(matrix[i][j] != 0) {
+                    list[count] = matrix[i][j];
+                    count++;
+                }
             }
         }
         int val = mergeSort(list);
-        
+        System.out.println("No of inversions :"+ val);
        if(val %2 == 0)
            return true;
        else
@@ -436,21 +444,35 @@ public class Puzzle {
         return count;
     } 
 
-  static public int[][] gasching(int[][] matrix) {
+  static public int[][] gaschnig(int[][] matrix) {
       ArrayList<Integer> list = convertToList(matrix);
       int blankPos = -1;
       int toSwapPos = -1;
       
-      for (int i = 1; i < list.size(); i++) {
+      for (int i = 0; i < list.size(); i++) {
+          
           if(list.get(i) == 0) {
               blankPos = i;
+              if(blankPos == 0) {
+              for(int l = 1; l < list.size(); l++) {
+                  if(list.get(l) != l) {
+                       list.set(0, list.get(l));
+                       list.set(l, 0);
+                       blankPos = l;
+                       break;
+                    }
+                  }
+              }
               break;
           }
+          
+          
       }
       
-      for (int j = 1; j < list.size(); j++) {
+      for (int j = 0; j < list.size(); j++) {
           if(list.get(j) == blankPos) {
               toSwapPos = j;
+              break;
           }
       }
       
