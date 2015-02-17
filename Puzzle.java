@@ -34,7 +34,7 @@ class PuzzleNode {
 
 public class Puzzle {
     static Map<ArrayList<Integer>, Integer> stateSpaceMap = new HashMap<ArrayList<Integer>, Integer>();
-    static LinkedList<Node> expansionList = new LinkedList<>();
+    static Map<ArrayList<Integer>, Integer> inputMap = new HashMap<ArrayList<Integer>, Integer>();
     static LinkedList<PuzzleNode> frontier = new LinkedList<>();
     static PriorityQueue<int[][]> pq1;
     static int count = 0;
@@ -48,20 +48,22 @@ public class Puzzle {
                                   {6, 7, 8}};
          
      
-    public static void main(String[] args) throws Exception{       
-        if(checkIfSolvable(initialState)) {
-           saveState(initialState);
-           saveState(goalState);
-           createStartNode(initialState);
-        }
-        else {
-            System.out.println("Problem cannot be solved");
+    public static void main(String[] args) throws Exception{  
+        saveState(false, goalState);
+        saveState(true, goalState);
+        for(int i = 0; i < 5; i++) {
+            initialState =  generateInputMatix();
+            printMatrix(initialState);
+            
+            saveState(true, initialState);
+            createStartNode(initialState);
+
+            stateSpaceMap.clear();
+            inputMap.clear();
         }
      }
      
      static void  createStartNode(int[][] matrix) {
-        int[][] inputMatrix = matrix;
-        
         int startnodeI = 0;
         int startnodeJ = 0;
         
@@ -88,7 +90,6 @@ public class Puzzle {
             });
         
         pq1.add(matrix);
-       // expansionList.add(startNode);
         frontier.add(startNode);
         calculatepath(matrix, HUERISTIC_TYPE.MISPLACED);
   }
@@ -113,7 +114,7 @@ public class Puzzle {
                         count++;
                         break;
                     }
-                     //matrix = giveGaschnigHeuristicMatrix(top);
+                     
                      matrix = gaschnig(matrix); 
                     //saveState(matrix);
                     
@@ -125,9 +126,7 @@ public class Puzzle {
                 }
             }
             System.out.println("Path cost if we get output:" + count);
-            
         }
-        
         else {                         
             int rows = matrix.length;
             int cols = matrix[0].length;
@@ -138,7 +137,7 @@ public class Puzzle {
                 int[][] top = pq1.poll();
                 
                 matrix = top;
-                visitedFlag = checkInStateSpace(top);
+                visitedFlag = checkInStateSpace(true, top);
                 if(count == 0) {
                     visitedFlag = false;          
                 }
@@ -155,8 +154,8 @@ public class Puzzle {
                 
                 count++;
                 
-                saveState(matrix);
-                printMatrix(matrix);
+                saveState(true, matrix);
+                //printMatrix(matrix);
                 pq1.clear();
                 ArrayList<Integer> coordinates = giveCoordinates(0, matrix);
                 ArrayList<Integer> singleList =  convertToList(matrix);
@@ -164,7 +163,7 @@ public class Puzzle {
 
                 int i = coordinates.get(0);
                 int j = coordinates.get(1);
-                //PuzzleNode pNode = new PuzzleNode(i , j);
+
                 PuzzleNode pNode = null;
                 boolean foundParent = false;
                
@@ -368,7 +367,7 @@ public class Puzzle {
        return coordinates;
    }
    
-   static public void saveState(int[][] stateSpace) {
+   static public void saveState(boolean isStateSpace, int[][] stateSpace) {
        int rows = stateSpace.length;
        int cols = stateSpace[0].length; 
         ArrayList<Integer> list = new ArrayList<Integer>();
@@ -378,95 +377,26 @@ public class Puzzle {
                 list.add(stateSpace[i][j]);
             }
         }
-        stateSpaceMap.put(list, 1);
+        if(isStateSpace) {
+            stateSpaceMap.put(list, 1);
+        }
+        else {
+            inputMap.put(list, 1);
+        }
    } 
 
-   static public Boolean checkInStateSpace(int[][] stateSpace) { 
-        if(stateSpaceMap.containsKey(convertToList(stateSpace)))
-            return true;
-        else 
-            return false;
+   static public Boolean checkInStateSpace(boolean isStateSpace, int[][] stateSpace) { 
+       boolean retVal = false;
+       if(isStateSpace) {
+            if(stateSpaceMap.containsKey(convertToList(stateSpace)))
+                retVal = true;
+       }
+       else {
+            if(inputMap.containsKey(convertToList(stateSpace)))
+                retVal = true;           
+       }
+       return retVal;
    }
-   
-    static public Boolean checkIfSolvable(int[][] matrix) {
-       int rows = matrix.length;
-       int cols = matrix[0].length; 
-       int[] list = new int[8];
-        
-       int count = 0;
-        for(int i= 0; i< rows; i++) {
-            for(int j = 0; j<cols; j++) {
-                if(matrix[i][j] != 0) {
-                    list[count] = matrix[i][j];
-                    count++;
-                }
-            }
-        }
-        int val = mergeSort(list);
-        System.out.println("No of inversions :"+ val);
-       if(val %2 == 0)
-           return true;
-       else
-           return false;
-   } 
-   
-    public static int mergeSort(int[] list)
-    {  
-        int mid = list.length/2, leftCount, leftRight, mergeCount, k;
-
-        if (list.length <= 1) {
-           return 0;
-        }
-        
-        int[] first = new int[mid];
-        int[] last = new int[list.length - mid];
-
-        for (k = 0; k < mid; k++) {
-            first[k] = list[k];
-        }
-        
-        for (k = 0; k < list.length - mid; k++) {
-            last[k] = list[mid+k];
-        }
-
-        leftCount = mergeSort (first);
-        leftRight = mergeSort (last);
- 
-        int result[] = new int[list.length];
-        mergeCount = mergeAndCount (first, last, result);
-
-        for (k = 0; k < list.length; k++) {
-            list[k] = result[k];
-        }
-
-        return (leftCount + leftRight + mergeCount);  
-    }  
-
-
-    public static int mergeAndCount (int left[], int right[], int result[]) {
-        int a = 0, b = 0, count = 0, i, k=0;
-
-        while ( ( a < left.length) && (b < right.length) )
-          {
-             if ( left[a] <= right[b] )
-                   result [k] = left[a++];
-             else       /*  You have found (a number of) inversions here.  */  
-                {
-                   result [k] = right[b++];
-                   count += left.length - a;
-                }
-             k++;
-          }
-
-        if ( a == left.length )
-           for ( i = b; i < right.length; i++)
-               result [k++] = right[i];
-        else
-           for ( i = a; i < left.length; i++)
-               result [k++] = left[i];
-
-        return count;
-    } 
 
   static public int[][] gaschnig(int[][] matrix) {
       ArrayList<Integer> list = convertToList(matrix);
@@ -559,5 +489,58 @@ public class Puzzle {
             System.out.println("");
         }
         System.out.println("\n");
+    }
+    
+    static public int[][] generateInputMatix() {
+        int[][] mat = goalState;
+        int rows = mat.length;
+        int cols = mat[0].length, i, j;
+        
+        int numSteps = 14 + (int) (Math.random() * (10 - 8));
+        ArrayList<Integer> coordinates = new ArrayList<Integer>();
+        
+        for(int step = 0; step < numSteps;) {
+            coordinates = giveCoordinates(0, mat);
+            i = coordinates.get(0);
+            j = coordinates.get(1);
+            
+            int direction = (int) (Math.random() * 4);
+            switch(direction) {
+                case 0:
+                    if((i - 1) >= 0) {
+                        mat = swap(mat, i, j, (i - 1), j);
+                        step++;
+                    }
+                break;
+                  
+                case 1:
+                    if(i+1 < rows){
+                        mat = swap(mat, i, j, (i + 1), j);
+                        step++;
+                    }
+                break;
+                    
+                case 2:
+                    if(j-1 >= 0){
+                        mat = swap(mat, i, j, i , (j - 1) );
+                        step++;
+                    }
+                break;
+                    
+                case 3:
+                    if(j+1 < cols){
+                        mat = swap(mat, i, j, i, (j + 1));
+                        step++;
+                    }
+                break;
+            }
+        }
+        
+        if(checkInStateSpace(false, mat)) {
+            mat = generateInputMatix();
+        }
+        
+        saveState(false, mat);
+        return mat;
     }
 }
