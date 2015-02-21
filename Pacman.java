@@ -41,5 +41,4 @@ class Pacman {
     astar = new GraphSearch();
     astar.createStartNode(mat, Algorithm.GreedyBestFirst);      
   }
-}
- 
+} 

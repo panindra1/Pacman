@@ -544,4 +544,3 @@ public class Puzzle {
         return mat;
     }
 }
-
