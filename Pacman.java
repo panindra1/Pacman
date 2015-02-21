@@ -42,5 +42,4 @@ class Pacman {
     astar.createStartNode(mat, Algorithm.GreedyBestFirst);      
   }
 }
-
  

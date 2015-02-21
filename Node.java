@@ -7,7 +7,8 @@
  *
  * @author panindra
  */
- enum NodeType {
+
+enum NodeType {
     StartNode, EndNode;
 }
 
