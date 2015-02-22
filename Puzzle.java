@@ -8,6 +8,7 @@ package pacman;
  *
  * @author panindra
  */
+
 enum HUERISTIC_TYPE {
     MISPLACED, MANHATTAN, GASCHNIG
 };
@@ -21,13 +22,16 @@ enum MAP_TYPE {
 }
 
 public class Puzzle {
+    //define goal state and set the goal state and pass the heuristic
     public static void main(String[] args) throws Exception {
+        
         int[][] goalState = {{0, 1, 2},
                             {3, 4, 5},
                             {6, 7, 8}};
         EightPuzzle eightPuzzle = new EightPuzzle();
         eightPuzzle.setGoalState(goalState);
-        eightPuzzle.startEightPuzzle(HUERISTIC_TYPE.GASCHNIG);
+        //pass the right heuristic
+        eightPuzzle.startEightPuzzle(HUERISTIC_TYPE.MANHATTAN);
     }
     
 }

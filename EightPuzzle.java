@@ -16,6 +16,7 @@ import java.util.PriorityQueue;
  * @author panindra
  */
 public class EightPuzzle {
+    //member variables required for the program.
     private Map<ArrayList<Integer>, Integer> stateSpaceMap = new HashMap<ArrayList<Integer>, Integer>();
     private Map<int[][], PuzzleNode> nodeMap = new HashMap<int[][], PuzzleNode>();
     private Map<ArrayList<Integer>, Integer> inputMap = new HashMap<ArrayList<Integer>, Integer>();
@@ -25,11 +26,12 @@ public class EightPuzzle {
     private Boolean mIsGoalReached;
     private int[][] initialState;    
     private int[][] goalState;
-
+    
+    //geetters and setters for meber variables..
     public void setGoalState(int[][] goalState) {
         this.goalState = goalState;
     }
-    
+    //Initial program to be called. get the input matrix from the matrix and continue the program
     public void startEightPuzzle(HUERISTIC_TYPE type) {
         mHueristicType = type;
         
@@ -44,7 +46,8 @@ public class EightPuzzle {
             inputMap.clear();
         }
     }
-
+    
+    //start node of the path
     private void createStartNode(int[][] matrix) {
         
         /*saveState(MAP_TYPE.SAVESTATEMAP, initialState);
@@ -83,6 +86,7 @@ public class EightPuzzle {
         calculatepath(matrix);
     }
 
+    //driver program for the 8puzzle. check the surrounding nodes and if possible create path.
     private void calculatepath(int[][] matrix) {
         int expandedNodeCount = 1;
         int count = 0;
@@ -123,7 +127,7 @@ public class EightPuzzle {
 
             PuzzleNode pNode = nodeMap.get(top);
 
-            int var = 0;
+            //check all four cases.
             if ((i - 1) >= 0) {
                 expandedNodeCount++;
                 
@@ -176,7 +180,7 @@ public class EightPuzzle {
             }
         }
     }
-
+   //create path to all four nodes and create link to the parent
      private Boolean createPath(PuzzleNode parent, int[][] mat, int i, int j) {
         PuzzleNode newNode = new PuzzleNode(i, j);
         newNode.parent = parent;
@@ -184,7 +188,8 @@ public class EightPuzzle {
         if (!nodeMap.containsKey(mat)) {
             nodeMap.put(mat, newNode);
         }
-
+        
+        //if goal is reached print the tree.
         if (mIsGoalReached) {
             printTree(newNode);
             return true;
@@ -192,7 +197,8 @@ public class EightPuzzle {
 
         return false;
     }
-
+    
+    // function to print the tree.
     private void printTree(PuzzleNode child) {
         int pathCost = 0;
         while (child != null) {
@@ -203,6 +209,7 @@ public class EightPuzzle {
         System.out.println("Path cost :" + (pathCost - 2));
     }
     
+    //utility function to swap the lements of the matrix
     private int[][] swap(int[][] curMat, int cur_i, int cur_j, int new_i, int new_j) {
         int[][] newMat = new int[curMat.length][];
         for (int i = 0; i < curMat.length; i++) {
@@ -215,6 +222,7 @@ public class EightPuzzle {
         return newMat;
     }
     
+    //Main program to get the hueristics and number to be returned based on heuristic type.
     private int giveHeuristics(int[][] mat) {
         int heuristicValue = 0;
         switch (mHueristicType) {
@@ -231,6 +239,7 @@ public class EightPuzzle {
         return heuristicValue;
     }
     
+    //function to calculate misplaced tiles at any point for the matrix.
     private int giveMisplacedTiles(int[][] mat, MATRIX_TYPE type) {
         int[][] matrixTOCompare = goalState;
         if (type == MATRIX_TYPE.INITIAL) {
@@ -249,7 +258,8 @@ public class EightPuzzle {
         }
         return numberOfMisplaced;
     }
-
+    
+    //function to give total manhatten distance heuristic for the matrix.
     private int giveTotalManhattanDistance(int[][] matrix, MATRIX_TYPE type) {
         int[][] toCompare = goalState;
         if (type == MATRIX_TYPE.INITIAL) {
@@ -271,6 +281,7 @@ public class EightPuzzle {
         return totalManhattanDistance;
     }
     
+    //function to give gashnig heuristic for a matrix.
     private int giveGaschnigHeuristic(int[][] matrix, MATRIX_TYPE type) {
         PriorityQueue<int[][]> GPriorityQ = new PriorityQueue<int[][]>();
         GPriorityQ.add(matrix);
@@ -304,6 +315,7 @@ public class EightPuzzle {
         return (CostToGoal);
     }
     
+    //utility function for gashnig to give best path among the alternatives.
     private int[][] gaschnig(int[][] matrix, MATRIX_TYPE type) {
         int[][] matrixToCompare = goalState;
         if (type == MATRIX_TYPE.INITIAL) {
@@ -412,7 +424,7 @@ public class EightPuzzle {
         return swapCount;
     }
     
-    
+    //get the start position at any point.
     private ArrayList<Integer> giveCoordinates(int num, int[][] curMatrix) {
         int rows = curMatrix.length;
         int cols = curMatrix[0].length;
@@ -429,7 +441,7 @@ public class EightPuzzle {
         }
         return coordinates;
     }
-
+    //utility function to save the current state space in spaceMap
     private void saveState(MAP_TYPE type, int[][] stateSpace) {
         int rows = stateSpace.length;
         int cols = stateSpace[0].length;
@@ -446,7 +458,8 @@ public class EightPuzzle {
             inputMap.put(list, 1);
         }
     }
-
+    
+    //fucntion to check the current state i nstatespacemap.
     private Boolean checkInStateSpace(boolean isStateSpace, int[][] stateSpace) {
         boolean retVal = false;
         if (isStateSpace) {
@@ -460,7 +473,8 @@ public class EightPuzzle {
         }
         return retVal;
     }
-
+    
+    //utility function to convert matrix to list.
     private ArrayList<Integer> convertToList(int[][] matrix) {
         int rows = matrix.length;
         int cols = matrix[0].length;
@@ -475,6 +489,7 @@ public class EightPuzzle {
         return list;
     }
 
+    //utility function to convert list to matrix
     private int[][] convertListToMatrix(ArrayList<Integer> list) {
         int[][] matrix = new int[3][3];
         int count = 0;
@@ -486,7 +501,8 @@ public class EightPuzzle {
         }
         return matrix;
     }
-
+    
+    //utikity function to check a state in initial or  goal state
     private Boolean checkInState(int[][] curMatrix, MATRIX_TYPE type) {
         int[][] checkInState = goalState;
         if (type == MATRIX_TYPE.INITIAL) {
@@ -505,7 +521,8 @@ public class EightPuzzle {
         }
         return true;
     }
-
+    
+    //utility function to print matrix
     private void printMatrix(int[][] curMatrix) {
         int rows = curMatrix.length;
         int cols = curMatrix[0].length;
@@ -518,7 +535,8 @@ public class EightPuzzle {
         }
         System.out.println("\n");
     }
-
+    
+    //function to generate the input matrix
     private int[][] generateInputMatix() {
         int[][] mat = goalState;
         int rows = mat.length;

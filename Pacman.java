@@ -19,7 +19,9 @@ enum Algorithm { AStar, GreedyBestFirst};
 class Pacman {
  
   public static void main(String[] args) throws Exception {
-    File inputFile = new File("Map2.txt");
+    //give the file name here.
+      
+    File inputFile = new File("smallMaze.txt");
     MazeParser maze;
       maze = new MazeParser(inputFile);
     int[][] mat = null;
@@ -28,29 +30,23 @@ class Pacman {
       } catch (Exception ex) {
           Logger.getLogger(Pacman.class.getName()).log(Level.SEVERE, null, ex);
       }
-    /*int[][] mat1 = new int[][]{
-                  {4, 3, 2, 3},
-                  {3, -1, -1, 2},
-                  {-2, -1, 0, 1}};*/
-     int[][] mat1 = new int[][]{
-                  {4, 3, 2, 3},
-                  {3, 2, -1, 2},
-                  {2, -1, 0, 1},
-                  {-2, 2, -1, 2}};
      
+    //A star algortihm
     GraphSearch astar = new GraphSearch();
     astar.createStartNode(mat, Algorithm.AStar, inputFile);      
-     
+    
+    //uncomment this to run GBFS star algortihm
+    //GraphSearch astar = new GraphSearch();
+    //astar.createStartNode(mat, Algorithm.GreedyBestFirst);      
+    
+    //Uncomment this to run BFS.
      /*BFS bfs = new BFS(maze.getMaze());
      bfs.parseMaze(maze);*/
-     
+    
+    //Uncomment this to run DFS.
     /* DFS dfs = new DFS(maze.getMaze());
     dfs.parser = maze;
-    dfs.parseMaze();*/
-     
-     
-    //astar = new GraphSearch();
-    //astar.createStartNode(mat, Algorithm.GreedyBestFirst);      
+    dfs.parseMaze();*/    
   }
  
 }
