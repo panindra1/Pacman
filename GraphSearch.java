@@ -1,8 +1,10 @@
+package pacman;
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
+
 import java.util.LinkedList;
 import java.util.PriorityQueue;
 import java.util.Comparator;
@@ -134,8 +136,9 @@ public class GraphSearch {
       System.out.println(child.getI() + " : "+ child.getJ());
       child = child.getParent();
     }
-     System.out.println("PathCost size : "+pathCost+" expansionList size : " + expansionList.size());
+     System.out.println("PathCost size : "+(pathCost - 2)+" expansionList size : " + expansionList.size());
   }
    
 }
- 
+
+  

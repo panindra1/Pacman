@@ -1,3 +1,5 @@
+package pacman;
+
 import java.util.*;
 import java.io.*;
 
@@ -10,6 +12,52 @@ public class MazeParser
     public MazeParser(File file)
     {
         this.file = file;
+    }
+    
+    public Maze getMaze() throws Exception
+    {
+	int[][] output;
+        BufferedReader br = new BufferedReader(new FileReader(file));
+        List<int[]> lineList = new ArrayList<int[]>();
+        String line;
+        int goalX = 0, goalY = 0, l = 0, startX = 0, startY = 0;
+        while((line = br.readLine()) != null)
+        {
+            int[] nodeArray = new int[line.length()];
+            for(int i = 0 ; i < line.length() ; i ++)
+            {
+                if(line.charAt(i) == '.')
+                {
+                    goalX = i;
+                    goalY = l;
+                    System.out.println("goalX = " + goalX + ", goalY = " + goalY);
+                    nodeArray[i] = -2;
+                }
+                else if(line.charAt(i) == '%')
+                {
+                    nodeArray[i] = -1;
+                }
+                else if(line.charAt(i) == 'P')
+                {
+                    nodeArray[i] = -3;
+                    startX = i;
+                    startY = l;
+                }  
+            }
+            lineList.add(nodeArray);
+            l ++;
+        }
+        output = new int[lineList.size()][];
+        for(int i = 0 ; i < lineList.size() ; i ++) output[i] = lineList.get(i);
+        for(int i = 0 ; i < output.length ; i ++)
+        {
+            for(int j = 0 ; j < output[i].length ; j ++)
+            {
+                if(output[i][j] == 0) output[i][j] = Math.abs(j - goalX) + Math.abs(i - goalY);
+            }
+        }
+	Maze maze = new Maze(output, startX, startY, goalX, goalY);
+        return maze;
     }
 
     public int[][] getMazeMatrix() throws Exception

@@ -3,6 +3,8 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
+package pacman;
+
 import java.io.File;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -16,7 +18,7 @@ enum Algorithm { AStar, GreedyBestFirst};
 
 class Pacman {
  
-  public static void main(String[] args) {
+  public static void main(String[] args) throws Exception {
     File inputFile = new File("smallMaze.txt");
     MazeParser maze;
       maze = new MazeParser(inputFile);
@@ -36,9 +38,15 @@ class Pacman {
                   {2, -1, 0, 1},
                   {-2, 2, -1, 2}};
      
-    GraphSearch astar = new GraphSearch();
-    astar.createStartNode(mat, Algorithm.AStar);      
-    astar = new GraphSearch();
-    astar.createStartNode(mat, Algorithm.GreedyBestFirst);      
+    //GraphSearch astar = new GraphSearch();
+    //astar.createStartNode(mat, Algorithm.GreedyBestFirst);      
+     
+     BFS bfs = new BFS(maze.getMaze());
+     bfs.parseMaze(maze);
+     
+    //astar = new GraphSearch();
+    //astar.createStartNode(mat, Algorithm.GreedyBestFirst);      
   }
-} 
+}
+
+ 
