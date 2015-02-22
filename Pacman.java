@@ -39,14 +39,15 @@ class Pacman {
                   {-2, 2, -1, 2}};
      
     //GraphSearch astar = new GraphSearch();
-    //astar.createStartNode(mat, Algorithm.GreedyBestFirst);      
+    //astar.createStartNode(mat, Algorithm.GreedyBestFirst, inputFile);      
      
-     BFS bfs = new BFS(maze.getMaze());
-     bfs.parseMaze(maze);
+     //BFS bfs = new BFS(maze.getMaze());
+     //bfs.parseMaze(maze);
      
     //astar = new GraphSearch();
     //astar.createStartNode(mat, Algorithm.GreedyBestFirst);      
   }
+ 
 }
 
  

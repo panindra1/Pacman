@@ -5,6 +5,7 @@ package pacman;
  * and open the template in the editor.
  */
 
+import java.io.File;
 import java.util.LinkedList;
 import java.util.PriorityQueue;
 import java.util.Comparator;
@@ -16,20 +17,23 @@ public class GraphSearch {
     LinkedList<Node> frontier = new LinkedList<>();
     LinkedList<Node> expansionList = new LinkedList<>();
     PriorityQueue<Node> pq1;
-     
-    void  createStartNode(int[][] matrix, final Algorithm algo) {
+    File mFile;
+    
+    void  createStartNode(int[][] matrix, final Algorithm algo, File file) {
+        mFile = file;
         Node startNode = new Node();
         startNode.setCostToGoal(0);
         startNode.setCostFromStart(0);
         startNode.setTotalCost(0);
         startNode.setNodeType(NodeType.StartNode);
         //startNode.id = nodeId;
-
-        for(int x = 0; x < matrix.length; x ++ ){
+  
+        for(int x = 0; x < matrix.length; x++ ){
           for(int y = 0; y < matrix[0].length; y ++ ){
               if(matrix[x][y] == -2) {
                 startNode.setI(x);
                 startNode.setJ(y);
+                break;
               }
           }
         }
@@ -131,14 +135,37 @@ public class GraphSearch {
 
    void printTree(Node child) {
     int pathCost = 0;
-    while(child != null) {
+    
+    MazeParser maze = new MazeParser(mFile);
+        try {
+            maze.printMaze(maze.getMazeMatrix(), child);
+        } catch (Exception ex) {
+            
+        }
+    
+        
+    while(child!= null) {
       pathCost++;
       System.out.println(child.getI() + " : "+ child.getJ());
       child = child.getParent();
     }
-     System.out.println("PathCost size : "+(pathCost - 2)+" expansionList size : " + expansionList.size());
+    
+    
+    System.out.println("PathCost size : "+(pathCost - 2)+" expansionList size : " + expansionList.size());
   }
-   
+  
+   private void printMatrix(int[][] curMatrix) {
+        int rows = curMatrix.length;
+        int cols = curMatrix[0].length;
+
+        for (int i = 0; i < rows; i++) {
+            for (int j = 0; j < cols; j++) {
+                System.out.print(curMatrix[i][j] + " ");
+            }
+            System.out.println("");
+        }
+        System.out.println("\n");
+    }
 }
 
   
