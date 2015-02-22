@@ -42,7 +42,7 @@ class BFS
 
     private void writeMazeOutput(Maze maze, Coordinate current, MazeParser parser)
     {
-        //parser.printMaze(maze.mazeMatrix, current);
+        parser.printMaze(maze.mazeMatrix, current);
     }
 
     private List<Coordinate> getNeighbors(int[][] maze, Coordinate coordinate)

@@ -41,7 +41,7 @@ class DFS
 
     private void writeMazeOutput(int[][] maze, Coordinate current)
     {
-        //parser.printMaze(maze, current);
+        parser.printMaze(maze, current);
         System.exit(0);
     }
 

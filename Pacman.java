@@ -19,7 +19,7 @@ enum Algorithm { AStar, GreedyBestFirst};
 class Pacman {
  
   public static void main(String[] args) throws Exception {
-    File inputFile = new File("smallMaze.txt");
+    File inputFile = new File("Map2.txt");
     MazeParser maze;
       maze = new MazeParser(inputFile);
     int[][] mat = null;
@@ -38,11 +38,16 @@ class Pacman {
                   {2, -1, 0, 1},
                   {-2, 2, -1, 2}};
      
-    //GraphSearch astar = new GraphSearch();
-    //astar.createStartNode(mat, Algorithm.GreedyBestFirst, inputFile);      
+    GraphSearch astar = new GraphSearch();
+    astar.createStartNode(mat, Algorithm.AStar, inputFile);      
      
-     //BFS bfs = new BFS(maze.getMaze());
-     //bfs.parseMaze(maze);
+     /*BFS bfs = new BFS(maze.getMaze());
+     bfs.parseMaze(maze);*/
+     
+    /* DFS dfs = new DFS(maze.getMaze());
+    dfs.parser = maze;
+    dfs.parseMaze();*/
+     
      
     //astar = new GraphSearch();
     //astar.createStartNode(mat, Algorithm.GreedyBestFirst);      
